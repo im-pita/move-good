@@ -17,7 +17,7 @@ During college move-out, students discard reusable blankets, small appliances, l
 1. **The AI describes; code decides**: Gemini 3.8 Flash Vision only detects items, counts, and visible condition. Drop-off eligibility is determined deterministically in TypeScript (`src/lib/match.ts`) against verified local organization rulebooks (`src/data/organizations.json`), eliminating hallucinated donation rules.
 2. **Show uncertainty & safety gates**: Electrical appliances (space heaters, fans) and footwear trigger human condition check cards (*"Does the heater work, with no frayed wires?"*) before routing to shelter bundles.
 3. **Data honesty**: Every organization specifies a `lastVerified` timestamp and indicates whether criteria are verified local partners or sample data.
-4. **Privacy-first**: Photos are scaled client-side to 800px and processed strictly in-memory without persistent disk storage or database logging. Supports JPG, PNG, WebP, and iPhone HEIC.
+4. **Privacy-first**: Photos are scaled client-side to 800px and processed strictly in-memory without persistent disk storage or database logging. Currently supports JPG photos.
 
 ---
 
@@ -30,9 +30,9 @@ During college move-out, students discard reusable blankets, small appliances, l
 ---
 
 ## Tech Stack
-- **Frontend**: React 19, TypeScript, Tailwind CSS v4, Lucide Icons, `heic2any` (for iPhone HEIC image conversion).
+- **Frontend**: React 19, TypeScript, Tailwind CSS v4, Lucide Icons.
 - **Backend**: Express + TSX (Dev) & Vercel Serverless Function (`api/analyze.ts`).
-- **AI Model**: `@google/genai` with `gemini-3.8-flash` (using `ThinkingLevel.LOW` for fast <2s inference).
+- **AI Model**: `@google/genai` with `gemini-2.5-flash` with fallback to `gemini-3.8-flash`.
 - **Hosting**: Vercel (Edge static files + Serverless API).
 
 ---

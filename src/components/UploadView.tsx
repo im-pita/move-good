@@ -1,8 +1,7 @@
 import React, { useRef, useState } from 'react';
-import { Camera, Image as ImageIcon, Sparkles, ArrowRight, UploadCloud, X, Loader2 } from 'lucide-react';
+import { Camera, Image as ImageIcon, Sparkles, ArrowRight, UploadCloud, X } from 'lucide-react';
 import { SAMPLE_PILES } from '../data/samplePiles';
 import { SamplePile } from '../types';
-import heic2any from 'heic2any';
 
 interface UploadViewProps {
   onAnalyzeUploaded: (imageData: string, mimeType: string) => void;
@@ -19,16 +18,14 @@ export const UploadView: React.FC<UploadViewProps> = ({
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [selectedFileMime, setSelectedFileMime] = useState<string>('image/jpeg');
   const [selectedPileId, setSelectedPileId] = useState<string | null>(null);
-  const [isConvertingHeic, setIsConvertingHeic] = useState<boolean>(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
 
-  // Process and shrink image in browser before uploading
+  // Process and shrink JPG image in browser before uploading
   // Speeds up upload and vision model inference significantly (800px max, 0.72 quality)
-  const processImageFile = async (file: File) => {
+  const processImageFile = (file: File) => {
     setSelectedPileId(null);
     setStatusMessage(null);
 
-    let imageBlob: Blob = file;
     const fileName = file.name.toLowerCase();
     const isHeic =
       fileName.endsWith('.heic') ||
@@ -37,35 +34,19 @@ export const UploadView: React.FC<UploadViewProps> = ({
       file.type === 'image/heif';
 
     if (isHeic) {
-      try {
-        setIsConvertingHeic(true);
-        setStatusMessage('Converting iPhone HEIC image...');
-        const conversionResult = await heic2any({
-          blob: file,
-          toType: 'image/jpeg',
-          quality: 0.85,
-        });
-        imageBlob = Array.isArray(conversionResult) ? conversionResult[0] : conversionResult;
-        setSelectedFileMime('image/jpeg');
-      } catch (err) {
-        console.error('HEIC conversion error:', err);
-        setStatusMessage('Could not convert HEIC format. Please choose a JPG/PNG.');
-        setIsConvertingHeic(false);
-        return;
-      } finally {
-        setIsConvertingHeic(false);
-        setStatusMessage(null);
-      }
-    } else {
-      setSelectedFileMime(file.type || 'image/jpeg');
+      setStatusMessage('Currently only supporting JPG photos. Please select a JPG photo.');
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      return;
     }
+
+    setSelectedFileMime(file.type || 'image/jpeg');
 
     const reader = new FileReader();
     reader.onload = (event) => {
       const img = new Image();
       img.onload = () => {
         const canvas = document.createElement('canvas');
-        // Optimized 800px max dimension provides sharp item recognition with 4x faster upload & token processing
+        // Optimized 800px max dimension provides sharp item recognition with fast response
         const MAX_DIM = 800;
         let width = img.width;
         let height = img.height;
@@ -89,9 +70,12 @@ export const UploadView: React.FC<UploadViewProps> = ({
           setSelectedFileMime('image/jpeg');
         }
       };
+      img.onerror = () => {
+        setStatusMessage('Could not read image file. Please ensure it is a valid JPG.');
+      };
       img.src = event.target?.result as string;
     };
-    reader.readAsDataURL(imageBlob);
+    reader.readAsDataURL(file);
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -141,11 +125,11 @@ export const UploadView: React.FC<UploadViewProps> = ({
           Show us the pile.
         </h2>
 
-        {/* Hidden file input supporting JPG, PNG, WEBP, and iPhone HEIC */}
+        {/* Hidden file input supporting JPG */}
         <input
           ref={fileInputRef}
           type="file"
-          accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif"
+          accept="image/jpeg,image/jpg,.jpg,.jpeg"
           capture="environment"
           className="hidden"
           onChange={handleFileChange}
@@ -157,41 +141,27 @@ export const UploadView: React.FC<UploadViewProps> = ({
             onClick={() => fileInputRef.current?.click()}
             className="w-full rounded-3xl border-2 border-dashed border-stone-300 bg-white/50 hover:bg-white hover:border-[#163323]/40 p-8 sm:p-10 flex flex-col items-center justify-center text-center cursor-pointer transition-all shadow-xs group relative overflow-hidden"
           >
-            {isConvertingHeic ? (
-              <div className="flex flex-col items-center justify-center py-4">
-                <Loader2 className="w-10 h-10 text-[#163323] animate-spin mb-3" />
-                <p className="text-sm font-semibold text-stone-800">
-                  Converting iPhone HEIC photo...
-                </p>
-                <p className="text-xs text-stone-500 mt-1">
-                  Optimizing for quick AI analysis
-                </p>
-              </div>
-            ) : (
-              <>
-                {/* Lime camera icon circle */}
-                <div className="w-16 h-16 rounded-full bg-[#D5F044] text-[#163323] flex items-center justify-center mb-4 shadow-sm group-hover:scale-105 transition-transform">
-                  <Camera className="w-8 h-8" />
-                </div>
+            {/* Lime camera icon circle */}
+            <div className="w-16 h-16 rounded-full bg-[#D5F044] text-[#163323] flex items-center justify-center mb-4 shadow-sm group-hover:scale-105 transition-transform">
+              <Camera className="w-8 h-8" />
+            </div>
 
-                <h3 className="text-lg font-bold text-slate-900 font-sans">
-                  Add a photo
-                </h3>
-                <p className="text-xs sm:text-sm text-stone-500 max-w-xs mt-1">
-                  Take a new photo or choose one from your camera roll
-                </p>
+            <h3 className="text-lg font-bold text-slate-900 font-sans">
+              Add a photo
+            </h3>
+            <p className="text-xs sm:text-sm text-stone-500 max-w-xs mt-1">
+              Take a new photo or choose a JPG from your camera roll
+            </p>
 
-                <div className="inline-flex items-center gap-1.5 mt-4 text-xs font-semibold text-[#163323] group-hover:text-[#E26D5C] transition-colors">
-                  <UploadCloud className="w-4 h-4" />
-                  <span>Browse files or drag & drop</span>
-                </div>
+            <div className="inline-flex items-center gap-1.5 mt-4 text-xs font-semibold text-[#163323] group-hover:text-[#E26D5C] transition-colors">
+              <UploadCloud className="w-4 h-4" />
+              <span>Browse files or drag & drop</span>
+            </div>
 
-                {/* Accepted formats badge */}
-                <div className="mt-3 inline-flex items-center gap-1 text-[11px] text-stone-400 bg-stone-100/80 px-2.5 py-1 rounded-full">
-                  <span>Supports JPG, PNG, WebP & iPhone HEIC</span>
-                </div>
-              </>
-            )}
+            {/* Accepted formats badge */}
+            <div className="mt-3 inline-flex items-center gap-1.5 text-[11px] font-semibold text-stone-600 bg-stone-200/70 px-3 py-1 rounded-full">
+              <span>Currently only supporting JPG</span>
+            </div>
           </div>
         ) : (
           /* Image Selected / Preview State */
@@ -267,9 +237,9 @@ export const UploadView: React.FC<UploadViewProps> = ({
       <div className="pt-4">
         <button
           onClick={handleSubmit}
-          disabled={!previewUrl || isLoading || isConvertingHeic}
+          disabled={!previewUrl || isLoading}
           className={`w-full flex items-center justify-center gap-2 py-3.5 px-6 rounded-full font-medium text-sm sm:text-base transition-all shadow-sm ${
-            previewUrl && !isLoading && !isConvertingHeic
+            previewUrl && !isLoading
               ? 'bg-[#163323] hover:bg-[#11271b] text-white active:scale-[0.99] cursor-pointer'
               : 'bg-[#98A89E] text-white/80 cursor-not-allowed opacity-80'
           }`}
