@@ -47,7 +47,7 @@ export default function App() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ image: imageData, mimeType }),
-        signal: AbortSignal.timeout(25000),
+        signal: AbortSignal.timeout(45000),
       });
 
       if (!response.ok) {

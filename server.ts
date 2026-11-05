@@ -83,79 +83,127 @@ Categorize each item strictly into one of:
 
 Be honest and conservative. If an appliance (heater, fan, electronic) or footwear is detected, specify a concise follow-up condition check question for the student (e.g. "Does the heater work, with no frayed wires or damage?").`;
 
-    const response = await ai.models.generateContent({
-      model: 'gemini-3.8-flash',
-      contents: {
-        parts: [
-          {
-            inlineData: {
-              mimeType: cleanMimeType,
-              data: base64Data,
-            },
-          },
-          {
-            text: 'Identify all items visible in this move-out pile according to the instructions and schema.',
-          },
-        ],
-      },
-      config: {
-        systemInstruction,
-        responseMimeType: 'application/json',
-        thinkingConfig: { thinkingLevel: ThinkingLevel.LOW },
-        responseSchema: {
-          type: Type.OBJECT,
-          properties: {
-            summary: {
-              type: Type.STRING,
-              description: 'One sentence summarizing what was spotted in the photo.',
-            },
-            items: {
-              type: Type.ARRAY,
-              description: 'List of detected items in the photo.',
-              items: {
-                type: Type.OBJECT,
-                properties: {
-                  label: {
-                    type: Type.STRING,
-                    description: 'Specific descriptive name, e.g., "Ceramic space heater", "Blue fleece blanket"',
-                  },
-                  category: {
-                    type: Type.STRING,
-                    description: 'One of: blanket, laundry_basket, hangers, fan, heater, shoes, cleaning_supplies, clothing, other',
-                  },
-                  quantity: {
-                    type: Type.INTEGER,
-                    description: 'Estimated count of this item.',
-                  },
-                  condition: {
-                    type: Type.STRING,
-                    description: 'One of: good, worn, unclear',
-                  },
-                  confidence: {
-                    type: Type.STRING,
-                    description: 'One of: high, medium, low',
-                  },
-                  note: {
-                    type: Type.STRING,
-                    description: 'Brief observation on visible condition.',
-                  },
-                  needsConditionCheck: {
-                    type: Type.BOOLEAN,
-                    description: 'True if electrical appliance, heater, fan, shoes, or fragile item requiring student verification.',
-                  },
-                  conditionCheckQuestion: {
-                    type: Type.STRING,
-                    description: 'Clear question to confirm before donating, e.g. "Does the heater work, with no frayed wires or damage?"',
-                  },
-                },
-                required: ['label', 'category', 'quantity', 'condition', 'confidence'],
+    let response: any;
+    try {
+      response = await ai.models.generateContent({
+        model: 'gemini-2.5-flash',
+        contents: {
+          parts: [
+            {
+              inlineData: {
+                mimeType: cleanMimeType,
+                data: base64Data,
               },
             },
-          },
-          required: ['items'],
+            {
+              text: 'Identify all items visible in this move-out pile according to the instructions and schema.',
+            },
+          ],
         },
-      },
-    });
+        config: {
+          systemInstruction,
+          responseMimeType: 'application/json',
+          responseSchema: {
+            type: Type.OBJECT,
+            properties: {
+              summary: {
+                type: Type.STRING,
+                description: 'One sentence summarizing what was spotted in the photo.',
+              },
+              items: {
+                type: Type.ARRAY,
+                description: 'List of detected items in the photo.',
+                items: {
+                  type: Type.OBJECT,
+                  properties: {
+                    label: {
+                      type: Type.STRING,
+                      description: 'Specific descriptive name, e.g., "Ceramic space heater", "Blue fleece blanket"',
+                    },
+                    category: {
+                      type: Type.STRING,
+                      description: 'One of: blanket, laundry_basket, hangers, fan, heater, shoes, cleaning_supplies, clothing, other',
+                    },
+                    quantity: {
+                      type: Type.INTEGER,
+                      description: 'Estimated count of this item.',
+                    },
+                    condition: {
+                      type: Type.STRING,
+                      description: 'One of: good, worn, unclear',
+                    },
+                    confidence: {
+                      type: Type.STRING,
+                      description: 'One of: high, medium, low',
+                    },
+                    note: {
+                      type: Type.STRING,
+                      description: 'Brief observation on visible condition.',
+                    },
+                    needsConditionCheck: {
+                      type: Type.BOOLEAN,
+                      description: 'True if electrical appliance, heater, fan, shoes, or fragile item requiring student verification.',
+                    },
+                    conditionCheckQuestion: {
+                      type: Type.STRING,
+                      description: 'Clear question to confirm before donating, e.g. "Does the heater work, with no frayed wires or damage?"',
+                    },
+                  },
+                  required: ['label', 'category', 'quantity', 'condition', 'confidence'],
+                },
+              },
+            },
+            required: ['items'],
+          },
+        },
+      });
+    } catch (primaryErr: any) {
+      console.warn('Primary model gemini-2.5-flash error, falling back to gemini-3.8-flash:', primaryErr?.message);
+      response = await ai.models.generateContent({
+        model: 'gemini-3.8-flash',
+        contents: {
+          parts: [
+            {
+              inlineData: {
+                mimeType: cleanMimeType,
+                data: base64Data,
+              },
+            },
+            {
+              text: 'Identify all items visible in this move-out pile according to the instructions and schema.',
+            },
+          ],
+        },
+        config: {
+          systemInstruction,
+          responseMimeType: 'application/json',
+          responseSchema: {
+            type: Type.OBJECT,
+            properties: {
+              summary: { type: Type.STRING },
+              items: {
+                type: Type.ARRAY,
+                items: {
+                  type: Type.OBJECT,
+                  properties: {
+                    label: { type: Type.STRING },
+                    category: { type: Type.STRING },
+                    quantity: { type: Type.INTEGER },
+                    condition: { type: Type.STRING },
+                    confidence: { type: Type.STRING },
+                    note: { type: Type.STRING },
+                    needsConditionCheck: { type: Type.BOOLEAN },
+                    conditionCheckQuestion: { type: Type.STRING },
+                  },
+                  required: ['label', 'category', 'quantity', 'condition', 'confidence'],
+                },
+              },
+            },
+            required: ['items'],
+          },
+        },
+      });
+    }
 
     const rawText = response.text || '{}';
     let parsed: any;
