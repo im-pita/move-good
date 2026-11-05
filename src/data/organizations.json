@@ -1,0 +1,98 @@
+[
+  {
+    "id": "org-josephs-house",
+    "name": "Joseph's House & Shelter",
+    "type": "shelter",
+    "badgeNumber": "01",
+    "themeColor": "lime",
+    "address": "202 4th Street, Troy, NY 12180",
+    "hours": "Mon–Fri · 9:00 AM–5:00 PM",
+    "website": "https://www.josephshousetroy.org",
+    "lastVerified": "2026-11-01",
+    "isSample": false,
+    "acceptsDescription": "Accepts: Small appliances, clean coats & warm blankets",
+    "rules": {
+      "blanket": { "rule": "accept", "note": "Clean bedding & blankets urgently needed" },
+      "heater": { "rule": "accept", "note": "Only undamaged with intact safety switches" },
+      "fan": { "rule": "accept", "note": "Must have clean blades and intact power cord" },
+      "laundry_basket": { "rule": "reject", "note": "Currently at storage capacity for hampers" },
+      "hangers": { "rule": "reject", "note": "Cannot store standalone clothes hangers" },
+      "shoes": { "rule": "reject", "note": "Direct shoes to ReStyle community thrift" },
+      "cleaning_supplies": { "rule": "ask", "note": "Unopened packages only" },
+      "clothing": { "rule": "accept", "note": "Winter coats & thermal layers preferred" },
+      "other": { "rule": "reject", "note": "Contact office before bringing unlisted items" }
+    }
+  },
+  {
+    "id": "org-restyle-thrift",
+    "name": "ReStyle Thrift Store (Unity House)",
+    "type": "thrift",
+    "badgeNumber": "02",
+    "themeColor": "coral",
+    "address": "Flanigan Square, 547 River St, Troy, NY 12180",
+    "hours": "Tue–Thu · 10:00 AM–6:00 PM, Fri–Sat · 10:00 AM–3:00 PM",
+    "website": "https://www.unityhouseny.org",
+    "lastVerified": "2026-11-01",
+    "isSample": false,
+    "acceptsDescription": "Accepts: Hangers, clothes & shoes in good condition",
+    "rules": {
+      "hangers": { "rule": "accept", "note": "Bundles of plastic and wooden hangers welcome" },
+      "shoes": { "rule": "accept", "note": "Clean pairs with intact soles" },
+      "clothing": { "rule": "accept", "note": "Gently used or washed apparel" },
+      "laundry_basket": { "rule": "accept", "note": "Clean plastic baskets and hamper bins" },
+      "blanket": { "rule": "accept", "note": "Laundered throws and comforters" },
+      "fan": { "rule": "reject", "note": "Appliances routed to shelters or electronics recycling" },
+      "heater": { "rule": "reject", "note": "Space heaters not accepted due to liability" },
+      "cleaning_supplies": { "rule": "reject", "note": "Cannot resell chemical cleaning fluids" },
+      "other": { "rule": "ask", "note": "Inspect upon drop-off" }
+    }
+  },
+  {
+    "id": "org-unity-house-center",
+    "name": "Unity House Front Door Resource Center",
+    "type": "shelter",
+    "badgeNumber": "03",
+    "themeColor": "blue",
+    "address": "2431 6th Avenue, Troy, NY 12180",
+    "hours": "Mon–Fri · 8:30 AM–4:30 PM",
+    "website": "https://www.unityhouseny.org",
+    "lastVerified": "2026-11-01",
+    "isSample": false,
+    "acceptsDescription": "Accepts: Cleaning supplies & personal essentials",
+    "rules": {
+      "cleaning_supplies": { "rule": "accept", "note": "Disinfectants, detergents, and surface sprays" },
+      "blanket": { "rule": "accept", "note": "Fresh blankets & twin bed sheets" },
+      "laundry_basket": { "rule": "accept", "note": "Distributed to transitional housing suites" },
+      "hangers": { "rule": "reject", "note": "Sufficient supply in storage" },
+      "fan": { "rule": "ask", "note": "Check room allocation availability" },
+      "heater": { "rule": "reject", "note": "Central heating in building, heaters not allowed" },
+      "shoes": { "rule": "ask", "note": "Winter boots and children's sizes" },
+      "clothing": { "rule": "accept", "note": "Interview clothing and seasonal coats" },
+      "other": { "rule": "reject" }
+    }
+  },
+  {
+    "id": "org-campus-reuse",
+    "name": "RPI Campus ReUse & Free Store",
+    "type": "campus_group",
+    "badgeNumber": "04",
+    "themeColor": "emerald",
+    "address": "Student Union 2nd Floor, 110 8th St, Troy, NY 12180",
+    "hours": "Mon–Fri · 10:00 AM–4:00 PM",
+    "website": "https://sustainability.rpi.edu",
+    "lastVerified": "2026-11-01",
+    "isSample": false,
+    "acceptsDescription": "Accepts: Dorm essentials, storage, fans & hangers for arriving students",
+    "rules": {
+      "fan": { "rule": "accept", "note": "High demand for incoming freshman dorms" },
+      "hangers": { "rule": "accept", "note": "Distributed during fall move-in orientation" },
+      "laundry_basket": { "rule": "accept", "note": "Huge demand for dorm move-in" },
+      "blanket": { "rule": "reject", "note": "Textiles routed to local shelters for sanitation" },
+      "heater": { "rule": "reject", "note": "Space heaters prohibited in on-campus residence halls" },
+      "shoes": { "rule": "reject", "note": "Direct to local community thrift" },
+      "cleaning_supplies": { "rule": "accept", "note": "Shared cleaning station supplies" },
+      "clothing": { "rule": "reject", "note": "Campus Free Store hosts separate clothing drives" },
+      "other": { "rule": "ask", "note": "Dorm furniture and desk supplies welcome" }
+    }
+  }
+]

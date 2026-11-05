@@ -1,0 +1,6 @@
+{
+  "name": "MoveGood — Student Move-Out Donation Sorter",
+  "description": "Snap a photo of your college move-out pile to automatically categorize items, verify condition safety, and route them to verified local shelters and community donation centers.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

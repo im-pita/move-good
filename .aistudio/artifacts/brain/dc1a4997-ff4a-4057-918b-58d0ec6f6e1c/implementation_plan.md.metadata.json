@@ -1,0 +1,6 @@
+{
+  "summary":  "Architectural and UX implementation plan for MoveGood, a mobile-first donation sorter designed from the user's Figma Make mockup and product spec. Details the full-stack architecture, Gemini 3.8 Flash multimodal vision processing, deterministic matching engine against verified local community organizations, condition check confirmation gate, editing/removal flows, and recruiter portfolio insights.",
+  "updatedAt":  "2026-11-02T05:26:50.235094686Z",
+  "requestFeedback":  true,
+  "userFacing":  true
+}
