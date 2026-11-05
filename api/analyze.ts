@@ -1,15 +1,9 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { GoogleGenAI, Type, ThinkingLevel } from '@google/genai';
 
-const apiKey = process.env.GEMINI_API_KEY;
-const ai = new GoogleGenAI({
-  apiKey: apiKey || '',
-  httpOptions: {
-    headers: {
-      'User-Agent': 'aistudio-build',
-    },
-  },
-});
+export const config = {
+  maxDuration: 60,
+};
 
 const ALLOWED_CATEGORIES = [
   'blanket',
@@ -26,25 +20,49 @@ const ALLOWED_CATEGORIES = [
 type Category = typeof ALLOWED_CATEGORIES[number];
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  // Only accept POST requests
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
   try {
-    const { image, mimeType } = req.body || {};
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      console.error('GEMINI_API_KEY is not defined in Vercel environment variables');
+      return res.status(503).json({
+        error: 'GEMINI_API_KEY environment variable is not configured in Vercel settings. Please check Vercel Dashboard > Settings > Environment Variables.',
+      });
+    }
+
+    // Safely parse body if sent as string or object
+    let body = req.body;
+    if (typeof body === 'string') {
+      try {
+        body = JSON.parse(body);
+      } catch (e) {
+        return res.status(400).json({ error: 'Invalid JSON request body' });
+      }
+    }
+
+    const { image, mimeType } = body || {};
 
     if (!image) {
       return res.status(400).json({ error: 'Image data is required' });
     }
 
-    if (!apiKey) {
-      return res.status(503).json({
-        error: 'GEMINI_API_KEY environment variable is not configured in Vercel settings.',
-      });
-    }
-
     const base64Data = image.replace(/^data:image\/[a-zA-Z+]+;base64,/, '');
     const cleanMimeType = mimeType || 'image/jpeg';
+
+    console.log(`Processing image analysis with Gemini 3.8 Flash (payload length: ${base64Data.length})`);
+
+    const ai = new GoogleGenAI({
+      apiKey,
+      httpOptions: {
+        headers: {
+          'User-Agent': 'aistudio-build',
+        },
+      },
+    });
 
     const systemInstruction = `You are MoveGood's computer vision assistant.
 Analyze the user's photo of items being left behind or packed during college move-out (dorm room, apartment, or closet cleanout).
@@ -139,7 +157,13 @@ Be honest and conservative. If an appliance (heater, fan, electronic) or footwea
     });
 
     const rawText = response.text || '{}';
-    const parsed = JSON.parse(rawText);
+    let parsed: any;
+    try {
+      parsed = JSON.parse(rawText);
+    } catch (parseErr) {
+      console.error('Failed to parse model JSON:', rawText);
+      return res.status(500).json({ error: 'Failed to parse model response' });
+    }
 
     const items = (parsed.items || []).map((rawItem: any, index: number) => {
       let category: Category = 'other';
@@ -183,6 +207,7 @@ Be honest and conservative. If an appliance (heater, fan, electronic) or footwea
       };
     });
 
+    console.log(`Successfully identified ${items.length} items`);
     return res.status(200).json({
       summary: parsed.summary || `Detected ${items.length} items from your photo.`,
       items,
