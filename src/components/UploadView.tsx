@@ -15,6 +15,7 @@ export const UploadView: React.FC<UploadViewProps> = ({
   isLoading,
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [selectedFileMime, setSelectedFileMime] = useState<string>('image/jpeg');
   const [selectedPileId, setSelectedPileId] = useState<string | null>(null);
@@ -96,6 +97,7 @@ export const UploadView: React.FC<UploadViewProps> = ({
     setSelectedPileId(null);
     setStatusMessage(null);
     if (fileInputRef.current) fileInputRef.current.value = '';
+    if (cameraInputRef.current) cameraInputRef.current.value = '';
   };
 
   const handleSubmit = () => {
@@ -125,9 +127,18 @@ export const UploadView: React.FC<UploadViewProps> = ({
           Show us the pile.
         </h2>
 
-        {/* Hidden file input supporting JPG */}
+        {/* Hidden file input for Photo Gallery / Library (no capture attribute to allow picking from gallery) */}
         <input
           ref={fileInputRef}
+          type="file"
+          accept="image/jpeg,image/jpg,.jpg,.jpeg"
+          className="hidden"
+          onChange={handleFileChange}
+        />
+
+        {/* Hidden file input for Camera capture */}
+        <input
+          ref={cameraInputRef}
           type="file"
           accept="image/jpeg,image/jpg,.jpg,.jpeg"
           capture="environment"
@@ -135,27 +146,48 @@ export const UploadView: React.FC<UploadViewProps> = ({
           onChange={handleFileChange}
         />
 
-        {/* Main Dropzone / Camera Area */}
+        {/* Main Dropzone / Photo Selection Area */}
         {!previewUrl ? (
           <div
             onClick={() => fileInputRef.current?.click()}
-            className="w-full rounded-3xl border-2 border-dashed border-stone-300 bg-white/50 hover:bg-white hover:border-[#163323]/40 p-8 sm:p-10 flex flex-col items-center justify-center text-center cursor-pointer transition-all shadow-xs group relative overflow-hidden"
+            className="w-full rounded-3xl border-2 border-dashed border-stone-300 bg-white/50 hover:bg-white hover:border-[#163323]/40 p-6 sm:p-10 flex flex-col items-center justify-center text-center cursor-pointer transition-all shadow-xs group relative overflow-hidden"
           >
-            {/* Lime camera icon circle */}
-            <div className="w-16 h-16 rounded-full bg-[#D5F044] text-[#163323] flex items-center justify-center mb-4 shadow-sm group-hover:scale-105 transition-transform">
-              <Camera className="w-8 h-8" />
+            {/* Lime icon circle */}
+            <div className="w-16 h-16 rounded-full bg-[#D5F044] text-[#163323] flex items-center justify-center mb-3 shadow-sm group-hover:scale-105 transition-transform">
+              <ImageIcon className="w-8 h-8" />
             </div>
 
             <h3 className="text-lg font-bold text-slate-900 font-sans">
               Add a photo
             </h3>
             <p className="text-xs sm:text-sm text-stone-500 max-w-xs mt-1">
-              Take a new photo or choose a JPG from your camera roll
+              Select a JPG from your gallery or take a new photo
             </p>
 
-            <div className="inline-flex items-center gap-1.5 mt-4 text-xs font-semibold text-[#163323] group-hover:text-[#E26D5C] transition-colors">
-              <UploadCloud className="w-4 h-4" />
-              <span>Browse files or drag & drop</span>
+            {/* Action buttons for mobile selection */}
+            <div className="flex flex-wrap items-center justify-center gap-2.5 mt-4">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  fileInputRef.current?.click();
+                }}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold text-white bg-[#163323] hover:bg-[#11271b] shadow-xs active:scale-95 transition-all"
+              >
+                <ImageIcon className="w-3.5 h-3.5" />
+                <span>Choose from Gallery</span>
+              </button>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  cameraInputRef.current?.click();
+                }}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-semibold text-stone-700 bg-white hover:bg-stone-100 border border-stone-300 shadow-xs active:scale-95 transition-all"
+              >
+                <Camera className="w-3.5 h-3.5 text-stone-600" />
+                <span>Take Photo</span>
+              </button>
             </div>
 
             {/* Accepted formats badge */}
